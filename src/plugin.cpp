@@ -115,3 +115,22 @@ static void SKSEMessageHandler(SKSE::MessagingInterface::Message* message)
             break;
     }
 }
+
+void InitializeUI()
+{
+    InGameLog(">>> InitializeUI START");
+    SKSE::log::info("InitializeUI START");
+
+    if (!PrismaUI) {
+        InGameLog(">>> PrismaUI NULL in InitUI");
+        return;
+    }
+
+    LoadConfig();
+
+    InitializeConfig();  // dari setting.cpp
+    InitializeHUD();     // dari hud.cpp
+
+    InGameLog(">>> UI INITIALIZED");
+    SKSE::log::info("UI initialized");
+}
