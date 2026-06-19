@@ -1,6 +1,14 @@
 {
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "enxyabilities",
+    "version": "1.0.0",
     "dependencies": [
         "commonlibsse-ng"
+    ],
+    "overrides": [
+        {
+            "name": "commonlibsse-ng",
+            "version": "3.5.0"
+        }
     ]
 }
