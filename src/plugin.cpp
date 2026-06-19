@@ -1,12 +1,14 @@
+// plugin.cpp  
 #include "PCH.h"
 
-PRISMA_UI_API::IVPrismaUI1* PrismaUI = nullptr;
-PrismaView g_viewConfig = 0;
-PrismaView g_viewHUD = 0;
-bool g_uiVisible = false;
+namespace globals {  
+    PRISMA_UI_API::IVPrismaUI1* PrismaUI = nullptr;  
+    PrismaView g_viewConfig;  
+    PrismaView g_viewHUD;  
+    WidgetConfig g_config;  
+}
 
-WidgetConfig g_config;
-
+// ... sisanya kode inisialisasi Anda ...  
 static void InGameLog(const char* msg)
 {
     if (RE::ConsoleLog::GetSingleton()) {
