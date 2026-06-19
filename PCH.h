@@ -7,11 +7,14 @@
 #include "PrismaUI_API.h"
 
 // Global variables
-namespace globals {
-    extern PRISMA_UI_API::IVPrismaUI1* PrismaUI;
-    extern PrismaView g_viewConfig;
-    extern PrismaView g_viewHUD;
+// P
+namespace globals {  
+    extern PRISMA_UI_API::IVPrismaUI1* PrismaUI;  
+    extern PrismaView g_viewConfig;  
+    extern PrismaView g_viewHUD;  
+    extern WidgetConfig g_config;  
     extern bool g_uiVisible;
+}
 
     struct WidgetConfig {
         bool showHP = true;
