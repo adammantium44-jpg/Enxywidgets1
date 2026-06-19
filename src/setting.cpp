@@ -1,67 +1,60 @@
 #include "PCH.h"
 
-void ApplyConfigToHUD()
+// Callback dari JS -> C++
+void AdminConfig(const char* result)
 {
-    if (!PrismaUI || !PrismaUI->IsValid(g_viewHUD))
-        return;
+    SKSE::log::info("AdminConfig received: %s", result);
 
-    std::string args = "showHP:" + std::string(g_config.showHP ? "true" : "false") + ",";
-    args += "showStamina:" + std::string(g_config.showStamina ? "true" : "false") + ",";
-    args += "showMagicka:" + std::string(g_config.showMagicka ? "true" : "false") + ",";
-    args += "posX:" + std::to_string(g_config.posX) + ",";
-    args += "posY:" + std::to_string(g_config.posY);
+    auto showHPPos = strstr(result, "showHP:");
+    auto showStamPos = strstr(result, "showStamina:");
+    auto showMagPos = strstr(result, "showMagicka:");
+    auto posXPos = strstr(result, "posX:");
+    auto posYPos = strstr(result, "posY:");
 
-    PrismaUI->InteropCall(g_viewHUD, "UpdateLayout", args.c_str());
+    if (showHPPos) g_config.showHP = (showHPPos[7] == 't');
+    if (showStamPos) g_config.showStamina = (showStamPos[10] == 't');
+    if (showMagPos) g_config.showMagicka = (showMagPos[11] == 't');
 
-    SKSE::log::info("HUD config applied");
+    if (posXPos) {
+        posXPos += 5;
+        g_config.posX = std::strtod(posXPos, nullptr);
+    }
+
+    if (posYPos) {
+        posYPos += 5;
+        g_config.posY = std::strtod(posYPos, nullptr);
+    }
+
+    SaveConfig();
+    ApplyConfigToHUD();
+
+    SKSE::log::info("Config applied from JS");
 }
 
-void InitializeHUD()
+void InitializeConfig()
 {
-    InGameLog(">>> Creating HUD View...");
+    InGameLog(">>> Creating Config View...");
     
-    auto onDomReadyHUD = [](PrismaView view) {
-        SKSE::log::info("HUD DOM ready");
-        ApplyConfigToHUD();
+    auto onDomReadyConfig = [](PrismaView view) {
+        SKSE::log::info("Config DOM ready");
     };
 
-    g_viewHUD = PrismaUI->CreateView("EnxyAbilities/hud.html", onDomReadyHUD);
+    g_viewConfig = PrismaUI->CreateView("EnxyAbilities/setting.html", onDomReadyConfig);
 
-    if (!PrismaUI->IsValid(g_viewHUD)) {
-        InGameLog(">>> HUD View INVALID");
-        SKSE::log::error("HUD View invalid");
+    if (!PrismaUI->IsValid(g_viewConfig)) {
+        InGameLog(">>> Config View INVALID");
+        SKSE::log::error("Config View invalid");
         return;
     }
 
+    PrismaUI->Hide(g_viewConfig);
+
     char buffer[64];
-    sprintf_s(buffer, ">>> HUD View ID: %llu", g_viewHUD);
+    sprintf_s(buffer, ">>> Config View ID: %llu", g_viewConfig);
     InGameLog(buffer);
 
-    PrismaUI->Show(g_viewHUD);
-    PrismaUI->Unfocus(g_viewHUD);
+    // Register JS listener
+    PrismaUI->RegisterJSListener(g_viewConfig, "AdminConfig", AdminConfig);
 
-    InGameLog(">>> HUD VIEW CREATED");
-}
-
-// Optional: Update real stats from game
-void UpdateHUDStats()
-{
-    if (!PrismaUI || !PrismaUI->IsValid(g_viewHUD))
-        return;
-
-    auto player = RE::PlayerCharacter::GetSingleton();
-    if (!player)
-        return;
-
-    float hp = player->GetCurrentHealth();
-    float maxHp = player->GetStatValue(RE::WEAPON_TYPE::kNone); // dapat diganti
-    float stamina = player->GetCurrentStamina();
-    float magicka = player->GetCurrentMagicka();
-
-    std::string args = "hp:" + std::to_string(hp) + 
-                       ",maxHp:" + std::to_string(maxHp) +
-                       ",stamina:" + std::to_string(stamina) +
-                       ",magicka:" + std::to_string(magicka);
-
-    PrismaUI->InteropCall(g_viewHUD, "setStats", args.c_str());
+    InGameLog(">>> CONFIG VIEW CREATED");
 }
